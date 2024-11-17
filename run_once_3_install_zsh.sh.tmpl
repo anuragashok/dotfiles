@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# Check if zsh is installed
+if ! command -v zsh &>/dev/null; then
+  echo "Installing zsh..."
+  if [[ "$(uname -s)" == "Linux" && -f /etc/debian_version ]]; then
+    sudo apt update && sudo apt install -y zsh
+  elif [[ "$(uname -s)" == "Darwin" ]]; then
+    brew install zsh
+  else
+    echo "Unsupported OS for zsh installation. Aborting."
+    exit 1
+  fi
+else
+  echo "zsh is already installed."
+fi
+
+# Change the default shell to zsh if not already set
+if [[ "$SHELL" != "$(command -v zsh)" ]]; then
+  echo "Changing default shell to zsh..."
+  chsh -s "$(command -v zsh)"
+else
+  echo "zsh is already the default shell."
+fi
+
+# Install oh-my-zsh if not already installed
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+  echo "Installing oh-my-zsh..."
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+else
+  echo "oh-my-zsh is already installed."
+fi
+
+# Install zsh-syntax-highlighting
+if [[ ! -d "$HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting" ]]; then
+  echo "Installing zsh-syntax-highlighting..."
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$HOME/.oh-my-zsh/plugins/zsh-syntax-highlighting"
+else
+  echo "zsh-syntax-highlighting is already installed."
+fi
+
+# Install zsh-autosuggestions
+if [[ ! -d "$HOME/.oh-my-zsh/plugins/zsh-autosuggestions" ]]; then
+  echo "Installing zsh-autosuggestions..."
+  git clone https://github.com/zsh-users/zsh-autosuggestions.git "$HOME/.oh-my-zsh/plugins/zsh-autosuggestions"
+else
+  echo "zsh-autosuggestions is already installed."
+fi
+
+# Install fzf
+if ! command -v fzf &>/dev/null; then
+  echo "Installing fzf..."
+  git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf"
+  "$HOME/.fzf/install" --all
+else
+  echo "fzf is already installed."
+fi
+
+# Install zsh-z (Directory jumping)
+if [[ ! -d "$HOME/.oh-my-zsh/plugins/zsh-z" ]]; then
+  echo "Installing zsh-z..."
+  git clone https://github.com/agkozak/zsh-z.git "$HOME/.oh-my-zsh/plugins/zsh-z"
+else
+  echo "zsh-z is already installed."
+fi
+
+# Install zsh-vi-mode (Vim key bindings)
+if [[ ! -d "$HOME/.oh-my-zsh/plugins/zsh-vi-mode" ]]; then
+  echo "Installing zsh-vi-mode..."
+  git clone https://github.com/jeffreytse/zsh-vi-mode.git "$HOME/.oh-my-zsh/plugins/zsh-vi-mode"
+else
+  echo "zsh-vi-mode is already installed."
+fi
+
+# Install powerlevel10k theme
+if [[ ! -d "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" ]]; then
+  echo "Installing powerlevel10k..."
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
+else
+  echo "powerlevel10k is already installed."
+fi

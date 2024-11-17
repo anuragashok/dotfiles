@@ -1,0 +1,41 @@
+packages:
+  debian:
+    - curl
+    - git
+    - vim
+    - wget
+    - unzip
+    - htop
+    - zsh
+    - nodejs
+    - npm
+    - build-essential  # Essential for compiling software
+    - python3
+    - python3-pip
+    - tmux              # Terminal multiplexer
+    - neofetch          # System info display
+    - openssh-server    # SSH server
+    - ripgrep           # Faster grep alternative
+    - fd-find           # Friendly `find` alternative
+    - bat               # Improved `cat` with syntax highlighting
+    - fzf               # Fuzzy finder
+  macos:
+    - curl
+    - git
+    - vim
+    - wget
+    - unzip
+    - htop
+    - zsh
+    - node
+    - npm
+    - python3
+    - tmux
+    - neofetch
+    - openssh
+    - ripgrep
+    - fd
+    - bat
+    - fzf
+    - cmake             # Build system generator
+    - gnu-sed           # GNU sed for compatibility with Linux scripts

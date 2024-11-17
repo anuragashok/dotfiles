@@ -1,0 +1,41 @@
+#!/bin/bash
+git config --global user.name {{ .secrets.git_name }}
+git config --global user.email  {{ .secrets.git_email }}
+
+KEY_FILE="$HOME/.ssh/id_rsa"
+PUBLIC_KEY_FILE="$KEY_FILE.pub"
+GITHUB_API_URL="https://api.github.com/user/keys"
+GITHUB_TOKEN="{{ .secrets.github_token }}"
+
+# Function to upload the public key to GitHub
+upload_to_github() {
+  local public_key
+  public_key=$(cat "$PUBLIC_KEY_FILE")
+
+  echo "Uploading SSH public key to GitHub..."
+  response=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "Authorization: token $GITHUB_TOKEN" \
+    -d "{\"title\":\"$(hostname) SSH Key\",\"key\":\"$public_key\"}" \
+    "$GITHUB_API_URL")
+
+  if [[ "$response" -eq 201 ]]; then
+    echo "SSH public key successfully uploaded to GitHub."
+  else
+    echo "Failed to upload SSH public key to GitHub. HTTP status code: $response"
+  fi
+}
+
+# Check if the public key exists and upload it to GitHub
+if [[ -f "$PUBLIC_KEY_FILE" ]]; then
+  echo "Public key found at $PUBLIC_KEY_FILE. Attempting to upload to GitHub..."
+  upload_to_github
+  if [[ $? -eq 0 ]]; then
+    echo "Public key successfully uploaded to GitHub."
+  else
+    echo "Failed to upload public key to GitHub. Please check your GitHub token and connection."
+  fi
+else
+  echo "Error: Public key not found at $PUBLIC_KEY_FILE. Ensure SSH key generation was successful."
+  exit 1
+fi
+

@@ -1,0 +1,20 @@
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+export ZSH="/home/anuragashok/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+plugins=(git zsh-z zsh-syntax-highlighting zsh-autosuggestions zsh-vi-mode)
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+source $ZSH/oh-my-zsh.sh
+
+# Directory containing additional configuration files
+ZSH_CONFIG_DIR="$HOME/.zsh.d"
+
+# Ensure the directory exists
+if [ -d "$ZSH_CONFIG_DIR" ]; then
+  # Source all files matching the pattern (e.g., *.zsh)
+  for config_file in "$ZSH_CONFIG_DIR"/*.zsh; do
+    # Check if the file exists before sourcing
+    [ -f "$config_file" ] && source "$config_file"
+  done
+fi

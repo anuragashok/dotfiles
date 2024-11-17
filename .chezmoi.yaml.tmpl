@@ -1,0 +1,16 @@
+git:
+  autoCommit: true
+  autoPush: true
+
+hooks:
+  apply:
+    post:
+      command: source $HOME/.zshrc
+
+data:
+  users:
+    - anuragashok
+  secrets:
+    git_name: '{{ (bitwardenSecrets "01fd1a03-5bd2-475c-8bbb-b22b00c2aaeb").value }}'
+    git_email: '{{ (bitwardenSecrets "1cfab6d4-0e30-46ef-b66e-b22b00c2c0ae").value }}'
+    github_token: '{{ (bitwardenSecrets "5301fb75-122f-4cd7-9c91-b22b00eea564").value }}'

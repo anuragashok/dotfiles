@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Function to install packages for Debian-based systems
+install_debian_packages() {
+  packages="{{ join " " .packages.debian }}"
+  echo "Detected Debian-based system."
+  echo "The following packages will be installed: $packages"
+  sudo apt update
+  sudo apt install -y $packages
+}
+
+# Function to install packages for macOS
+install_macos_packages() {
+  packages="{{ join " " .packages.macos }}"
+  echo "Detected macOS."
+  echo "The following packages will be installed: $packages"
+
+  if ! command -v brew &>/dev/null; then
+    echo "Homebrew not found. Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+
+  brew install $packages
+}
+
+# Determine the OS and install packages
+if [[ "$(uname -s)" == "Linux" ]]; then
+  if [[ -f /etc/debian_version ]]; then
+    install_debian_packages
+  else
+    echo "Unsupported Linux distribution. Only Debian-based systems are supported."
+    exit 1
+  fi
+elif [[ "$(uname -s)" == "Darwin" ]]; then
+  install_macos_packages
+else
+  echo "Unsupported OS. Only Debian-based systems and macOS are supported."
+  exit 1
+fi
+
+
