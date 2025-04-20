@@ -1,0 +1,16 @@
+---
+- name: Install Bitwarden Secrets Manager CLI (bws)
+  shell: |
+    BWS_VERSION=1.0.0 curl -fsSL https://bws.bitwarden.com/install | bash -s -- -b "{{ ansible_env.HOME }}/.local/bin"
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/bws"
+    executable: /bin/bash
+  become: no
+  become_user: "{{ ansible_env.USER }}"
+
+- name: Configure bws server URL
+  shell: "{{ ansible_env.HOME }}/.local/bin/bws config server-base https://vault.bitwarden.com"
+  become: no
+  become_user: "{{ ansible_env.USER }}"
+  register: bws_config
+  changed_when: false 

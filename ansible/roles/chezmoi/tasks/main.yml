@@ -1,4 +1,8 @@
 ---
+- name: Include dependencies tasks
+  ansible.builtin.include_tasks:
+    file: dependencies.yml
+
 - name: Remove existing chezmoi directories
   file:
     path: "{{ item }}"
@@ -31,8 +35,6 @@
     mode: '0644'
   loop:
     - { src: ".chezmoi.toml", dest: "{{ ansible_env.HOME }}/.config/chezmoi/chezmoi.toml" }
-    - { src: ".chezmoiexternal.toml", dest: "{{ ansible_env.HOME }}/.local/share/chezmoi/.chezmoiexternal.toml" }
-    - { src: ".chezmoiignore", dest: "{{ ansible_env.HOME }}/.local/share/chezmoi/.chezmoiignore" }
 
 - name: Initialize chezmoi
   shell: "{{ ansible_env.HOME }}/.local/bin/chezmoi init"
@@ -48,7 +50,9 @@
   when: chezmoi_init.rc == 0
 
 - name: Apply chezmoi configuration
-  shell: "{{ ansible_env.HOME }}/.local/bin/chezmoi apply --force --refresh-externals"
+  shell: |
+    export PATH="$PATH:{{ ansible_env.HOME }}/.local/bin"
+    {{ ansible_env.HOME }}/.local/bin/chezmoi apply --force --refresh-externals
   args:
     executable: /bin/bash
   when: chezmoi_init.rc == 0

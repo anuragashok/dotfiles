@@ -65,4 +65,18 @@ source $ZSH/oh-my-zsh.sh
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-FREETYPE_PROPERTIES="cff:no-stem-darkening=0 autofitter:no-stem-darkening=0" 
+# Load all .zsh files from .zsh.d
+if [ -d "$HOME/.zsh.d" ]; then
+  for file in "$HOME/.zsh.d"/*.zsh; do 
+    [ -f "$file" ] && source "$file"
+  done
+fi
+
+# setup git name and email based on env variables
+if [[ -n "$GITHUB_USERNAME" ]]; then
+  git config --global user.name "$GITHUB_USERNAME"
+fi
+
+if [[ -n "$GITHUB_EMAIL" ]]; then
+  git config --global user.email "$GITHUB_EMAIL" 
+fi
