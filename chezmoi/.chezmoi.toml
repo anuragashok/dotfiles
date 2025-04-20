@@ -1,0 +1,19 @@
+[data]
+    email = "{{ .email }}"
+    zsh_plugins = [
+        "git",
+        "docker",
+        "kubectl",
+        "history",
+        "sudo",
+        "z",
+        "zsh-autosuggestions",
+        "zsh-syntax-highlighting"
+    ]
+
+[edit]
+    command = "nvim"
+
+[git]
+    autoCommit = true
+    autoPush = false 

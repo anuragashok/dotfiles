@@ -1,0 +1,8 @@
+---
+- name: Setup system configuration
+  hosts: localhost
+  connection: local
+
+  roles:
+    - zsh
+    - chezmoi 

@@ -1,0 +1,59 @@
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Local configuration files
+*.local
+.env
+.env.*
+
+# Compiled files
+*.pyc
+__pycache__/
+*.class
+*.o
+*.so
+
+# Package files
+node_modules/
+venv/
+.env/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Cache directories
+.cache/
+.npm/
+.yarn/
+.pnpm-store/
+
+# Test coverage
+coverage/
+*.lcov
+
+# Misc
+*.log
+*.pid
+*.seed
+*.pid.lock 

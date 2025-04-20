@@ -1,0 +1,39 @@
+---
+- name: Install zsh
+  package:
+    name: zsh
+    state: present
+  become: yes
+
+- name: Check if .zshrc exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+  register: zshrc_exists
+
+- name: Set zsh as default shell
+  user:
+    name: "{{ ansible_user_id }}"
+    shell: /bin/zsh
+  when: ansible_user_id != "root"
+  become: yes
+
+- name: Create basic .zshrc if it doesn't exist
+  copy:
+    dest: "{{ ansible_env.HOME }}/.zshrc"
+    content: |
+      # Enable colors
+      autoload -U colors && colors
+      
+      # History settings
+      HISTFILE=~/.zsh_history
+      HISTSIZE=10000
+      SAVEHIST=10000
+      
+      # Basic prompt
+      PROMPT="%{$fg[green]%}%n@%m%{$reset_color%}:%{$fg[blue]%}%~%{$reset_color%}$ "
+      
+      # Enable completion
+      autoload -U compinit
+      compinit
+    mode: '0644'
+  when: not zshrc_exists.stat.exists 
