@@ -35,5 +35,16 @@
       # Enable completion
       autoload -U compinit
       compinit
+
+      # Add ~/.local/bin to PATH
+      export PATH="$HOME/.local/bin:$PATH"
     mode: '0644'
-  when: not zshrc_exists.stat.exists 
+  when: not zshrc_exists.stat.exists
+
+- name: Ensure ~/.local/bin is in PATH
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    state: present
+    create: yes
+    insertafter: '^# Enable completion' 

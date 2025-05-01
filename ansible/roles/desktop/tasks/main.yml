@@ -1,0 +1,102 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for desktop applications
+
+- name: Create local bin directory if it doesn't exist
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: '0755'
+
+- name: Download Cursor AppImage
+  get_url:
+    url: https://downloads.cursor.com/production/0781e811de386a0c5bcb07ceb259df8ff8246a52/linux/x64/Cursor-0.49.6-x86_64.AppImage
+    dest: "{{ ansible_env.HOME }}/.local/bin/cursor.AppImage"
+    mode: '0755'
+
+- name: Make Cursor AppImage executable
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin/cursor.AppImage"
+    mode: '0755'
+    state: file
+
+- name: Create cursor wrapper script
+  copy:
+    dest: "{{ ansible_env.HOME }}/.local/bin/cursor"
+    content: |
+      #!/bin/bash
+      nohup "$(dirname "$0")/cursor.AppImage" "$@" >/dev/null 2>&1 &
+      disown
+    mode: '0755'
+
+- name: Download WezTerm AppImage
+  get_url:
+    url: https://github.com/wezterm/wezterm/releases/download/20240203-110809-5046fc22/WezTerm-20240203-110809-5046fc22-Ubuntu20.04.AppImage
+    dest: "{{ ansible_env.HOME }}/.local/bin/wezterm.AppImage"
+    mode: '0755'
+
+- name: Make WezTerm AppImage executable
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin/wezterm.AppImage"
+    mode: '0755'
+    state: file
+
+- name: Create wezterm wrapper script
+  copy:
+    dest: "{{ ansible_env.HOME }}/.local/bin/wezterm"
+    content: |
+      #!/bin/bash
+      exec "$(dirname "$0")/wezterm.AppImage" "$@"
+    mode: '0755'
+
+- name: Create desktop directory if it doesn't exist
+  file:
+    path: "{{ ansible_env.HOME }}/.local/share/applications"
+    state: directory
+    mode: '0755'
+
+- name: Create Cursor desktop file
+  copy:
+    dest: "{{ ansible_env.HOME }}/.local/share/applications/cursor.desktop"
+    content: |
+      [Desktop Entry]
+      Name=Cursor
+      Comment=Cursor IDE
+      Exec={{ ansible_env.HOME }}/.local/bin/cursor %F
+      Icon=cursor
+      Terminal=false
+      Type=Application
+      Categories=Development;IDE;
+      MimeType=text/plain;inode/directory;
+    mode: '0644'
+
+- name: Create WezTerm desktop file
+  copy:
+    dest: "{{ ansible_env.HOME }}/.local/share/applications/wezterm.desktop"
+    content: |
+      [Desktop Entry]
+      Name=WezTerm
+      Comment=A GPU-accelerated cross-platform terminal emulator and multiplexer
+      Exec={{ ansible_env.HOME }}/.local/bin/wezterm
+      Icon=wezterm
+      Terminal=false
+      Type=Application
+      Categories=System;TerminalEmulator;
+    mode: '0644'
+
+- name: Verify cursor command
+  shell: |
+    ls -l {{ ansible_env.HOME }}/.local/bin/cursor
+    file {{ ansible_env.HOME }}/.local/bin/cursor.AppImage
+  register: cursor_verify
+
+- name: Debug cursor verification
+  debug:
+    var: cursor_verify
+
+- name: Ensure ~/.local/bin is in PATH
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    state: present
+    create: yes

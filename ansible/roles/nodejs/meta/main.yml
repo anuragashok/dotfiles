@@ -1,0 +1,30 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: your name
+  description: Role for installing Node.js and common npm packages
+  license: MIT
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: Fedora
+      versions:
+        - 42
+    - name: Ubuntu
+      versions:
+        - 22.04
+        - 20.04
+    - name: Debian
+      versions:
+        - 11
+        - 12
+    - name: macOS
+      versions:
+        - 13
+        - 14
+
+  galaxy_tags:
+    - nodejs
+    - javascript
+    - development 

@@ -4,5 +4,7 @@
   connection: local
 
   roles:
-    - zsh
-    - chezmoi 
+    - { role: zsh, tags: ['zsh'] }
+    - { role: chezmoi, tags: ['chezmoi'] }
+    - { role: nodejs, tags: ['nodejs'] }
+    - { role: desktop, tags: ['desktop'] } 
