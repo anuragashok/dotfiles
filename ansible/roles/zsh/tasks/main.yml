@@ -3,7 +3,7 @@
   package:
     name: zsh
     state: present
-  become: yes
+  become: "{{ ansible_facts['os_family'] != 'Darwin' }}"
 
 - name: Check if .zshrc exists
   stat:
@@ -15,7 +15,7 @@
     name: "{{ ansible_user_id }}"
     shell: /bin/zsh
   when: ansible_user_id != "root"
-  become: yes
+  become: "{{ ansible_facts['os_family'] != 'Darwin' }}"
 
 - name: Create basic .zshrc if it doesn't exist
   copy:
@@ -47,4 +47,4 @@
     line: 'export PATH="$HOME/.local/bin:$PATH"'
     state: present
     create: yes
-    insertafter: '^# Enable completion' 
+    insertafter: '^# Enable completion'

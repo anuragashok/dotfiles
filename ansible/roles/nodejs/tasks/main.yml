@@ -4,7 +4,7 @@
     url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
     state: present
   when: ansible_os_family == "Debian"
-  become: true
+  become: "{{ ansible_facts['os_family'] != 'Darwin' }}"
 
 - name: Add NodeSource repository for Debian/Ubuntu
   apt_repository:
@@ -12,19 +12,19 @@
     state: present
     update_cache: yes
   when: ansible_os_family == "Debian"
-  become: true
+  become: "{{ ansible_facts['os_family'] != 'Darwin' }}"
 
 - name: Add NodeSource repository for Fedora
   shell: |
     curl -fsSL https://rpm.nodesource.com/setup_{{ nodejs_version }} | bash -
   when: ansible_os_family == "RedHat"
-  become: true
+  become: "{{ ansible_facts['os_family'] != 'Darwin' }}"
 
 - name: Install Node.js and npm
   package:
     name: nodejs
     state: present
-  become: true
+  become: "{{ ansible_facts['os_family'] != 'Darwin' }}"
 
 - name: Install global npm packages
   npm:
@@ -32,4 +32,4 @@
     global: yes
     state: present
   loop: "{{ nodejs_global_packages }}"
-  become: true 
+  become: "{{ ansible_facts['os_family'] != 'Darwin' }}"

@@ -31,7 +31,16 @@ fi
 # Check if Ansible is installed
 if ! command -v ansible >/dev/null 2>&1; then
     echo -e "${YELLOW}Installing Ansible...${NC}"
-    if command -v apt-get >/dev/null 2>&1; then
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # macOS: Install Homebrew if not installed
+        if ! command -v brew >/dev/null 2>&1; then
+            echo -e "${YELLOW}Homebrew not found. Installing Homebrew...${NC}"
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            # Add brew to PATH for current session
+            eval "$('/opt/homebrew/bin/brew' shellenv)"
+        fi
+        brew install ansible
+    elif command -v apt-get >/dev/null 2>&1; then
         sudo apt-get update
         sudo apt-get install -y ansible
     elif command -v dnf >/dev/null 2>&1; then
@@ -65,4 +74,4 @@ else
 fi
 
 echo -e "${GREEN}Setup complete!${NC}"
-echo -e "${YELLOW}Please restart your shell to apply changes${NC}" 
+echo -e "${YELLOW}Please restart your shell to apply changes${NC}"

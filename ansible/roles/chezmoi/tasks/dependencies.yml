@@ -1,16 +1,31 @@
 ---
-- name: Install Bitwarden Secrets Manager CLI (bws)
+- name: Ensure ~/.local/bin exists for bws
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: '0755'
+
+- name: Install Bitwarden Secrets Manager CLI (bws) on macOS
   shell: |
     BWS_VERSION=1.0.0 curl -fsSL https://bws.bitwarden.com/install | bash -s -- -b "{{ ansible_env.HOME }}/.local/bin"
   args:
     creates: "{{ ansible_env.HOME }}/.local/bin/bws"
     executable: /bin/bash
+  when: ansible_facts['os_family'] == 'Darwin'
+  become: false
+
+- name: Install Bitwarden Secrets Manager CLI (bws) on Linux
+  shell: |
+    BWS_VERSION=1.0.0 curl -fsSL https://bws.bitwarden.com/install | bash -s -- -b "{{ ansible_env.HOME }}/.local/bin"
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/bin/bws"
+    executable: /bin/bash
+  when: ansible_facts['os_family'] != 'Darwin'
   become: no
   become_user: "{{ ansible_env.USER }}"
 
 - name: Configure bws server URL
   shell: "{{ ansible_env.HOME }}/.local/bin/bws config server-base https://vault.bitwarden.com"
-  become: no
-  become_user: "{{ ansible_env.USER }}"
+  become: false
   register: bws_config
-  changed_when: false 
+  changed_when: false
