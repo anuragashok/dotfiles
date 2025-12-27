@@ -56,4 +56,8 @@ coverage/
 *.log
 *.pid
 *.seed
-*.pid.lock 
+*.pid.lock
+
+# Chezmoi
+.chezmoi.toml
+.chezmoidata/

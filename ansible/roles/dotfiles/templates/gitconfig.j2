@@ -1,0 +1,26 @@
+[user]
+    name = {{ git_name }}
+    email = {{ git_email }}
+
+[init]
+    defaultBranch = main
+
+[core]
+    editor = nvim
+
+[pull]
+    rebase = true
+
+[push]
+    autoSetupRemote = true
+
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    lg = log --oneline --graph --decorate --all
+
+{% if ansible_os_family == 'Darwin' %}
+[credential]
+    helper = osxkeychain
+{% endif %}

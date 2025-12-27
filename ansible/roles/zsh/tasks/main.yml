@@ -1,50 +1,42 @@
 ---
-- name: Install zsh
-  package:
-    name: zsh
-    state: present
-  become: "{{ ansible_facts['os_family'] != 'Darwin' }}"
+# Install Oh My Zsh and plugins - idempotent
+# ansible.builtin.git handles update checks natively
 
-- name: Check if .zshrc exists
-  stat:
-    path: "{{ ansible_env.HOME }}/.zshrc"
-  register: zshrc_exists
+- name: Check if Oh My Zsh is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  register: ohmyzsh_stat
 
-- name: Set zsh as default shell
-  user:
-    name: "{{ ansible_user_id }}"
-    shell: /bin/zsh
-  when: ansible_user_id != "root"
-  become: "{{ ansible_facts['os_family'] != 'Darwin' }}"
+- name: Install Oh My Zsh
+  ansible.builtin.shell: |
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  when: not ohmyzsh_stat.stat.exists
 
-- name: Create basic .zshrc if it doesn't exist
-  copy:
-    dest: "{{ ansible_env.HOME }}/.zshrc"
-    content: |
-      # Enable colors
-      autoload -U colors && colors
-      
-      # History settings
-      HISTFILE=~/.zsh_history
-      HISTSIZE=10000
-      SAVEHIST=10000
-      
-      # Basic prompt
-      PROMPT="%{$fg[green]%}%n@%m%{$reset_color%}:%{$fg[blue]%}%~%{$reset_color%}$ "
-      
-      # Enable completion
-      autoload -U compinit
-      compinit
+- name: Ensure custom directories exist
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - themes
+    - plugins
 
-      # Add ~/.local/bin to PATH
-      export PATH="$HOME/.local/bin:$PATH"
-    mode: '0644'
-  when: not zshrc_exists.stat.exists
+# The git module compares local HEAD with remote HEAD automatically
+# Only pulls if there are changes
+- name: Install/update powerlevel10k theme
+  ansible.builtin.git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/themes/powerlevel10k"
+    depth: 1
 
-- name: Ensure ~/.local/bin is in PATH
-  lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
-    line: 'export PATH="$HOME/.local/bin:$PATH"'
-    state: present
-    create: yes
-    insertafter: '^# Enable completion'
+- name: Install/update zsh-autosuggestions
+  ansible.builtin.git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    depth: 1
+
+- name: Install/update zsh-syntax-highlighting
+  ansible.builtin.git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    depth: 1

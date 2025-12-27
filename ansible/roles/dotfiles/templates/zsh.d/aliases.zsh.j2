@@ -1,0 +1,33 @@
+# Aliases
+
+# Navigation
+alias ..="cd .."
+alias ...="cd ../.."
+
+# ls
+alias ll="ls -alh"
+alias la="ls -A"
+
+# Git
+alias g="git"
+alias gs="git status"
+alias gd="git diff"
+alias gc="git commit"
+alias gp="git push"
+alias gl="git pull"
+alias gco="git checkout"
+alias glog="git log --oneline --graph --decorate"
+
+# Safety
+alias rm="rm -i"
+alias mv="mv -i"
+alias cp="cp -i"
+
+# Modern replacements
+command -v nvim &> /dev/null && alias vim="nvim"
+command -v bat &> /dev/null && alias cat="bat"
+command -v eza &> /dev/null && alias ls="eza"
+
+# Quick edit
+alias zshrc="$EDITOR ~/.zshrc"
+alias reload="source ~/.zshrc"

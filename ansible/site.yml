@@ -1,0 +1,55 @@
+---
+- name: Setup development environment
+  hosts: localhost
+  connection: local
+
+  pre_tasks:
+    - name: Fetch secrets from BWS
+      ansible.builtin.set_fact:
+        git_name: "{{ lookup('pipe', 'bws secret get ' + bws_secrets.git_name + ' --output json | jq -r .value') }}"
+        git_email: "{{ lookup('pipe', 'bws secret get ' + bws_secrets.git_email + ' --output json | jq -r .value') }}"
+        github_token: "{{ lookup('pipe', 'bws secret get ' + bws_secrets.github_token + ' --output json | jq -r .value') }}"
+      tags: [always]
+
+    - name: Display configuration
+      ansible.builtin.debug:
+        msg: "Setting up {{ machine_type }} environment for {{ git_name }} <{{ git_email }}>"
+      tags: [always]
+
+  roles:
+    # macOS: Homebrew packages
+    - role: geerlingguy.mac.homebrew
+      when: ansible_os_family == 'Darwin'
+      tags: [packages, homebrew]
+      vars:
+        homebrew_installed_packages: "{{ homebrew_packages }}"
+        homebrew_cask_apps: "{{ homebrew_casks }}"
+
+    # Fonts (MesloLGS NF for p10k)
+    - role: fonts
+      tags: [fonts]
+
+    # Oh My Zsh
+    - role: zsh
+      tags: [zsh, ohmyzsh]
+
+    # Node.js via nvm
+    - role: node
+      when: machine_type != 'server'
+      tags: [node, nvm]
+      vars:
+        npm_global_packages: "{{ nvm_npm_global_packages }}"
+
+    # Dotfiles
+    - role: dotfiles
+      tags: [dotfiles]
+
+    # macOS defaults
+    - role: macos
+      when: ansible_os_family == 'Darwin'
+      tags: [macos]
+
+    # iTerm2
+    - role: iterm2
+      when: ansible_os_family == 'Darwin' and machine_type != 'server'
+      tags: [iterm2]

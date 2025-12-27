@@ -1,0 +1,74 @@
+---
+# macOS defaults - idempotent
+# osx_defaults module only changes when value differs
+
+- name: Set keyboard repeat rate
+  community.general.osx_defaults:
+    domain: NSGlobalDomain
+    key: KeyRepeat
+    type: int
+    value: 2
+  register: keyboard_repeat
+
+- name: Set initial key repeat delay
+  community.general.osx_defaults:
+    domain: NSGlobalDomain
+    key: InitialKeyRepeat
+    type: int
+    value: 15
+
+- name: Show hidden files in Finder
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: AppleShowAllFiles
+    type: bool
+    value: true
+  register: finder_hidden
+
+- name: Show path bar in Finder
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: ShowPathbar
+    type: bool
+    value: true
+  register: finder_pathbar
+
+- name: Auto-hide Dock
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: autohide
+    type: bool
+    value: false
+  register: dock_autohide
+
+- name: Set Dock minimize effect
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: mineffect
+    type: string
+    value: scale
+  register: dock_effect
+
+- name: Create Screenshots directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/Screenshots"
+    state: directory
+    mode: "0755"
+
+- name: Set screenshots location
+  community.general.osx_defaults:
+    domain: com.apple.screencapture
+    key: location
+    type: string
+    value: "{{ ansible_env.HOME }}/Screenshots"
+
+# Only restart apps if settings changed
+- name: Restart Finder if settings changed
+  ansible.builtin.command: killall Finder
+  when: finder_hidden.changed or finder_pathbar.changed
+  ignore_errors: true
+
+- name: Restart Dock if settings changed
+  ansible.builtin.command: killall Dock
+  when: dock_autohide.changed or dock_effect.changed
+  ignore_errors: true

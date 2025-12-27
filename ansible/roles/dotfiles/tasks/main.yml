@@ -1,0 +1,42 @@
+---
+# Deploy dotfiles - idempotent (only changes when content differs)
+
+- name: Ensure directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ ansible_env.HOME }}/.zsh.d"
+    - "{{ ansible_env.HOME }}/.local/bin"
+
+- name: Deploy .zshrc
+  ansible.builtin.template:
+    src: zshrc.j2
+    dest: "{{ ansible_env.HOME }}/.zshrc"
+    mode: "0644"
+    backup: true
+
+- name: Deploy zsh.d configs
+  ansible.builtin.template:
+    src: "zsh.d/{{ item }}.j2"
+    dest: "{{ ansible_env.HOME }}/.zsh.d/{{ item }}"
+    mode: "0644"
+  loop:
+    - path.zsh
+    - aliases.zsh
+    - exports.zsh
+
+- name: Deploy .gitconfig
+  ansible.builtin.template:
+    src: gitconfig.j2
+    dest: "{{ ansible_env.HOME }}/.gitconfig"
+    mode: "0644"
+    backup: true
+
+- name: Deploy .p10k.zsh
+  ansible.builtin.copy:
+    src: p10k.zsh
+    dest: "{{ ansible_env.HOME }}/.p10k.zsh"
+    mode: "0644"
+    backup: true

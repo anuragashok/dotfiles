@@ -1,0 +1,27 @@
+# Powerlevel10k instant prompt
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+plugins=(
+    git
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    fzf
+{% if machine_type != 'server' %}
+    docker
+    kubectl
+{% endif %}
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# Load modular configs
+for config in ~/.zsh.d/*.zsh; do
+    [[ -f "$config" ]] && source "$config"
+done
+
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh

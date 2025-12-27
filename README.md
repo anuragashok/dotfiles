@@ -1,33 +1,82 @@
-# Dotfiles Management System
+# Dotfiles
 
-This repository contains configuration files and setup scripts for managing multiple systems using Ansible and chezmoi.
+Ansible-managed dotfiles with Bitwarden Secrets Manager (BWS) for configuration.
 
-## Structure
+## Prerequisites
 
-- `ansible/` - Contains Ansible playbooks for system setup
-- `setup.sh` - Bootstrap script for new systems
-- `chezmoi/` - Dotfiles managed by chezmoi
+1. **Install BWS CLI**: https://bitwarden.com/help/secrets-manager-cli/
+2. **Authenticate**: `bws login`
 
-## Setup
-
-To set up a new system:
+## Quick Start
 
 ```bash
-# Clone the repository
-git clone <your-repo-url> ~/.dotfiles
-cd ~/.dotfiles
-
-# Run the setup script
 ./setup.sh
 ```
 
-## Requirements
+## Selective Setup
 
-- Ansible
-- chezmoi
-- zsh
-- git
+```bash
+# Only packages
+./setup.sh packages
 
-## License
+# Only dotfiles
+./setup.sh dotfiles
 
-MIT 
+# Only zsh
+./setup.sh zsh
+
+# Only macOS defaults
+./setup.sh macos
+```
+
+## Structure
+
+```
+.
+├── setup.sh                    # Bootstrap script
+└── ansible/
+    ├── site.yml                # Main playbook
+    ├── requirements.yml        # External roles
+    ├── group_vars/
+    │   └── all.yml             # Variables + BWS secret IDs
+    └── roles/
+        ├── dotfiles/           # Deploys config files
+        │   ├── tasks/
+        │   ├── templates/      # .zshrc, .gitconfig, etc.
+        │   └── files/          # Static files (p10k.zsh)
+        └── macos/              # macOS system preferences
+```
+
+## Configuration
+
+Edit [ansible/group_vars/all.yml](ansible/group_vars/all.yml):
+
+```yaml
+# Machine type
+machine_type: personal  # or: work, server
+
+# BWS Secret IDs
+bws_secrets:
+  git_name: "your-secret-id"
+  git_email: "your-secret-id"
+  github_token: "your-secret-id"
+
+# Packages
+homebrew_packages:
+  - git
+  - neovim
+  # ...
+```
+
+## Adding a New Machine
+
+1. Clone repo
+2. Install and authenticate BWS
+3. Update `machine_type` in `group_vars/all.yml` if needed
+4. Run `./setup.sh`
+
+## Adding New Dotfiles
+
+1. Add template to `ansible/roles/dotfiles/templates/`
+2. Add task to `ansible/roles/dotfiles/tasks/main.yml`
+3. Run `./setup.sh dotfiles`

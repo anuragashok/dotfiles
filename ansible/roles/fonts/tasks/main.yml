@@ -1,0 +1,110 @@
+---
+# Install fonts - idempotent
+
+- name: Set font directory (macOS)
+  ansible.builtin.set_fact:
+    font_dir: "{{ ansible_env.HOME }}/Library/Fonts"
+  when: ansible_os_family == 'Darwin'
+
+- name: Set font directory (Linux)
+  ansible.builtin.set_fact:
+    font_dir: "{{ ansible_env.HOME }}/.local/share/fonts"
+  when: ansible_system == 'Linux'
+
+- name: Ensure fonts directory exists
+  ansible.builtin.file:
+    path: "{{ font_dir }}"
+    state: directory
+    mode: "0755"
+
+# MesloLGS NF - Powerlevel10k recommended font
+- name: Check if MesloLGS NF is installed
+  ansible.builtin.stat:
+    path: "{{ font_dir }}/MesloLGS%20NF%20Regular.ttf"
+  register: meslo_font
+
+- name: Download MesloLGS NF fonts
+  ansible.builtin.get_url:
+    url: "https://github.com/romkatv/powerlevel10k-media/raw/master/{{ item }}"
+    dest: "{{ font_dir }}/{{ item }}"
+    mode: "0644"
+  loop:
+    - MesloLGS%20NF%20Regular.ttf
+    - MesloLGS%20NF%20Bold.ttf
+    - MesloLGS%20NF%20Italic.ttf
+    - MesloLGS%20NF%20Bold%20Italic.ttf
+  when: not meslo_font.stat.exists
+
+# JetBrains Mono
+- name: Check if JetBrains Mono is installed
+  ansible.builtin.stat:
+    path: "{{ font_dir }}/JetBrainsMono-Regular.ttf"
+  register: jetbrains_font
+
+- name: Download and extract JetBrains Mono
+  when: not jetbrains_font.stat.exists
+  block:
+    - name: Create temp directory
+      ansible.builtin.tempfile:
+        state: directory
+      register: temp_dir
+
+    - name: Download JetBrains Mono zip
+      ansible.builtin.get_url:
+        url: https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip
+        dest: "{{ temp_dir.path }}/jetbrains.zip"
+        mode: "0644"
+
+    - name: Extract JetBrains Mono
+      ansible.builtin.unarchive:
+        src: "{{ temp_dir.path }}/jetbrains.zip"
+        dest: "{{ temp_dir.path }}"
+
+    - name: Copy TTF files to font directory
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ font_dir }}/"
+        mode: "0644"
+        remote_src: true
+      with_fileglob:
+        - "{{ temp_dir.path }}/fonts/ttf/*.ttf"
+
+    - name: Clean up temp directory
+      ansible.builtin.file:
+        path: "{{ temp_dir.path }}"
+        state: absent
+
+# JetBrains Mono Nerd Font
+- name: Check if JetBrains Mono Nerd Font is installed
+  ansible.builtin.stat:
+    path: "{{ font_dir }}/JetBrainsMonoNerdFont-Regular.ttf"
+  register: jetbrains_nerd_font
+
+- name: Download and extract JetBrains Mono Nerd Font
+  when: not jetbrains_nerd_font.stat.exists
+  block:
+    - name: Create temp directory for nerd font
+      ansible.builtin.tempfile:
+        state: directory
+      register: temp_dir_nerd
+
+    - name: Download JetBrains Mono Nerd Font zip
+      ansible.builtin.get_url:
+        url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/JetBrainsMono.zip
+        dest: "{{ temp_dir_nerd.path }}/jetbrains-nerd.zip"
+        mode: "0644"
+
+    - name: Extract JetBrains Mono Nerd Font
+      ansible.builtin.unarchive:
+        src: "{{ temp_dir_nerd.path }}/jetbrains-nerd.zip"
+        dest: "{{ font_dir }}"
+
+    - name: Clean up temp directory
+      ansible.builtin.file:
+        path: "{{ temp_dir_nerd.path }}"
+        state: absent
+
+- name: Refresh font cache (Linux)
+  ansible.builtin.command: fc-cache -fv
+  when: ansible_system == 'Linux'
+  changed_when: false

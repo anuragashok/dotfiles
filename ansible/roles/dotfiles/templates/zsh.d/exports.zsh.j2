@@ -1,0 +1,20 @@
+# Environment variables
+
+export EDITOR="nvim"
+export VISUAL="$EDITOR"
+
+export HISTSIZE=50000
+export SAVEHIST=50000
+export HISTFILE="$HOME/.zsh_history"
+
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+{% if github_token is defined and github_token %}
+export GITHUB_TOKEN="{{ github_token }}"
+{% endif %}
+
+{% if machine_type == 'work' %}
+# Work-specific
+# export HTTP_PROXY="http://proxy.company.com:8080"
+{% endif %}

@@ -1,77 +1,66 @@
 #!/bin/bash
+set -euo pipefail
 
-set -e
+# Dotfiles setup script
+# Prerequisites: bws must be installed and authenticated
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Function to display usage
-usage() {
-    echo -e "Usage: $0 [role]"
-    echo -e "  role: Optional. Name of the role to run. If not specified, runs all roles."
-    echo -e "  Available roles:"
-    echo -e "    - zsh"
-    echo -e "    - chezmoi"
-    echo -e "    - nodejs"
-    echo -e "    - desktop"
-    exit 1
-}
+log() { echo -e "${GREEN}[+]${NC} $1"; }
+warn() { echo -e "${YELLOW}[!]${NC} $1"; }
+error() { echo -e "${RED}[x]${NC} $1"; exit 1; }
 
-echo -e "${GREEN}Starting system setup...${NC}"
+# Check prerequisites
+command -v bws &> /dev/null || error "bws is not installed. Install it first: https://bitwarden.com/help/secrets-manager-cli/"
+bws secret list &> /dev/null || error "bws is not authenticated. Run: bws login"
 
-# Check if running as root
-if [ "$EUID" -eq 0 ]; then
-    echo -e "${RED}Please do not run this script as root${NC}"
-    exit 1
-fi
+# Detect OS
+OS="$(uname -s)"
+log "Detected OS: $OS"
 
-# Check if Ansible is installed
-if ! command -v ansible >/dev/null 2>&1; then
-    echo -e "${YELLOW}Installing Ansible...${NC}"
-    if [[ "$(uname)" == "Darwin" ]]; then
-        # macOS: Install Homebrew if not installed
-        if ! command -v brew >/dev/null 2>&1; then
-            echo -e "${YELLOW}Homebrew not found. Installing Homebrew...${NC}"
+# Install Ansible
+if ! command -v ansible &> /dev/null; then
+    log "Installing Ansible..."
+    if [[ "$OS" == "Darwin" ]]; then
+        # Install Homebrew if needed
+        if ! command -v brew &> /dev/null; then
+            log "Installing Homebrew..."
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            # Add brew to PATH for current session
-            eval "$('/opt/homebrew/bin/brew' shellenv)"
+            eval "$(/opt/homebrew/bin/brew shellenv)"
         fi
         brew install ansible
-    elif command -v apt-get >/dev/null 2>&1; then
-        sudo apt-get update
-        sudo apt-get install -y ansible
-    elif command -v dnf >/dev/null 2>&1; then
-        sudo dnf install -y ansible
-    elif command -v pacman >/dev/null 2>&1; then
-        sudo pacman -S --noconfirm ansible
-    else
-        echo -e "${RED}Unsupported package manager${NC}"
-        exit 1
+    elif [[ "$OS" == "Linux" ]]; then
+        if command -v apt &> /dev/null; then
+            sudo apt update && sudo apt install -y ansible
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y ansible
+        elif command -v pacman &> /dev/null; then
+            sudo pacman -S --noconfirm ansible
+        else
+            error "Unsupported Linux distribution"
+        fi
     fi
 fi
 
-# Check if a role was specified
-if [ $# -eq 1 ]; then
-    ROLE=$1
-    # Validate the role
-    case $ROLE in
-        zsh|chezmoi|nodejs|desktop)
-            echo -e "${YELLOW}Running Ansible playbook for role: ${ROLE}${NC}"
-            ansible-playbook ansible/setup.yml --tags $ROLE --ask-become-pass
-            ;;
-        *)
-            echo -e "${RED}Invalid role: ${ROLE}${NC}"
-            usage
-            ;;
-    esac
+log "Ansible version: $(ansible --version | head -1)"
+
+# Install Ansible requirements
+cd "$(dirname "$0")/ansible"
+log "Installing Ansible roles and collections..."
+ansible-galaxy collection install -r requirements.yml
+ansible-galaxy role install -r requirements.yml
+
+# Run playbook
+TAGS="${1:-}"
+if [[ -n "$TAGS" ]]; then
+    log "Running playbook with tags: $TAGS"
+    ansible-playbook site.yml --tags "$TAGS" --ask-become-pass
 else
-    # Run all roles
-    echo -e "${YELLOW}Running Ansible playbook for all roles...${NC}"
-    ansible-playbook ansible/setup.yml --ask-become-pass
+    log "Running full playbook..."
+    ansible-playbook site.yml --ask-become-pass
 fi
 
-echo -e "${GREEN}Setup complete!${NC}"
-echo -e "${YELLOW}Please restart your shell to apply changes${NC}"
+log "Setup complete!"

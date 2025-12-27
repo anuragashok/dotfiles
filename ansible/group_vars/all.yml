@@ -1,0 +1,41 @@
+---
+# Machine type: personal, work, server
+machine_type: personal
+
+# BWS Secret IDs - update these with your actual secret IDs
+bws_secrets:
+  git_name: "01fd1a03-5bd2-475c-8bbb-b22b00c2aaeb"
+  git_email: "1cfab6d4-0e30-46ef-b66e-b22b00c2c0ae"
+  github_token: "5301fb75-122f-4cd7-9c91-b22b00eea564"
+
+# Homebrew packages (macOS)
+homebrew_packages:
+  - git
+  - neovim
+  - ripgrep
+  - fd
+  - fzf
+  - jq
+  - gh
+  - tmux
+  - bat
+  - eza
+
+homebrew_casks:
+  - iterm2
+
+# Oh My Zsh configuration
+oh_my_zsh_theme: powerlevel10k/powerlevel10k
+oh_my_zsh_plugins:
+  - git
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting
+  - fzf
+
+# Node.js version
+nvm_node_version: "lts/*"
+nvm_npm_global_packages:
+  - yarn
+  - typescript
+  - eslint
+  - prettier
