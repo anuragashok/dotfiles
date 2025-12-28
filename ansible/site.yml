@@ -44,6 +44,10 @@
     - role: dotfiles
       tags: [dotfiles]
 
+    # GitHub authentication
+    - role: github
+      tags: [github, git]
+
     # macOS defaults
     - role: macos
       when: ansible_os_family == 'Darwin'

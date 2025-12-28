@@ -1,0 +1,42 @@
+---
+# Configure GitHub authentication - idempotent
+
+# Install GitHub CLI if not present (macOS via Homebrew, already in packages)
+# This role configures authentication
+
+- name: Check if gh is installed
+  ansible.builtin.command: which gh
+  register: gh_installed
+  changed_when: false
+  failed_when: false
+
+- name: Configure GitHub authentication
+  when: gh_installed.rc == 0 and github_token is defined and github_token | length > 0
+  block:
+    - name: Check if already authenticated with gh
+      ansible.builtin.shell: gh auth status
+      register: gh_auth_status
+      changed_when: false
+      failed_when: false
+
+    - name: Authenticate with GitHub CLI
+      ansible.builtin.shell: |
+        echo "{{ github_token }}" | gh auth login --with-token
+      when: gh_auth_status.rc != 0
+      no_log: true
+
+    - name: Configure git to use gh as credential helper
+      ansible.builtin.command: gh auth setup-git
+      changed_when: false
+
+- name: Configure git credential helper for HTTPS (fallback)
+  when: ansible_os_family == 'Darwin'
+  block:
+    - name: Check current credential helper
+      ansible.builtin.shell: git config --global credential.helper || echo ""
+      register: current_helper
+      changed_when: false
+
+    - name: Set git credential helper to osxkeychain
+      ansible.builtin.command: git config --global credential.helper osxkeychain
+      when: "'osxkeychain' not in current_helper.stdout"
