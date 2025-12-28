@@ -1,0 +1,15 @@
+---
+# Install Claude CLI - idempotent
+
+- name: Check if Claude CLI is installed
+  ansible.builtin.command: which claude
+  register: claude_installed
+  changed_when: false
+  failed_when: false
+
+- name: Install Claude CLI via native installer
+  ansible.builtin.shell: |
+    curl -fsSL https://claude.ai/install.sh | bash
+  when: claude_installed.rc != 0
+  args:
+    creates: "{{ ansible_env.HOME }}/.claude/local/bin/claude"

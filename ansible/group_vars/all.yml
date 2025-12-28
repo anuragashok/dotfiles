@@ -39,3 +39,10 @@ nvm_npm_global_packages:
   - typescript
   - eslint
   - prettier
+
+# VS Code extensions
+vscode_extensions:
+  - alphabotsec.vscode-eclipse-keybindings
+  - anthropic.claude-code
+  - github.copilot
+  - github.copilot-chat

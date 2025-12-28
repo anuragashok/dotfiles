@@ -66,4 +66,5 @@ ansible/inventory/*.local
 # Ansible Galaxy installed roles/collections (regenerated from requirements.yml)
 ansible/roles/geerlingguy.*/
 ansible/roles/gantsign.*/
+ansible/roles/ecgalaxy.*/
 ansible/collections/

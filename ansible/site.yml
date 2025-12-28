@@ -57,3 +57,13 @@
     - role: iterm2
       when: ansible_os_family == 'Darwin' and machine_type != 'server'
       tags: [iterm2]
+
+    # VS Code
+    - role: vscode
+      when: machine_type != 'server'
+      tags: [vscode, editor]
+
+    # Claude CLI
+    - role: claude
+      when: machine_type != 'server'
+      tags: [claude, ai]
