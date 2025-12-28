@@ -58,6 +58,12 @@ coverage/
 *.seed
 *.pid.lock
 
-# Chezmoi
-.chezmoi.toml
-.chezmoidata/
+# Ansible
+ansible/*.retry
+ansible/inventory/*.local
+*.local.yml
+
+# Ansible Galaxy installed roles/collections (regenerated from requirements.yml)
+ansible/roles/geerlingguy.*/
+ansible/roles/gantsign.*/
+ansible/collections/
