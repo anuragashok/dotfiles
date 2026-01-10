@@ -10,8 +10,10 @@ export HISTFILE="$HOME/.zsh_history"
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
-# GitHub auth is handled by 'gh auth setup-git' which uses the credential helper
-# Do NOT export GITHUB_TOKEN as it overrides the credential helper
+# Use GH_TOKEN for gh CLI auth (GITHUB_TOKEN would override git credential helper)
+{% if github_token is defined and github_token %}
+export GH_TOKEN="{{ github_token }}"
+{% endif %}
 
 {% if machine_type == 'work' %}
 # Work-specific
