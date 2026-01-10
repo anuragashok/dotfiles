@@ -1,0 +1,63 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(yarn:*)",
+      "Bash(pnpm:*)",
+      "Bash(git:*)",
+      "Bash(python:*)",
+      "Bash(node:*)",
+      "Bash(pip:*)",
+      "Bash(cargo:*)",
+      "Bash(go:*)",
+      "Bash(make:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:npmjs.org)",
+      "WebFetch(domain:registry.npmjs.org)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:files.pythonhosted.org)",
+      "WebFetch(domain:crates.io)",
+      "WebFetch(domain:pkg.go.dev)",
+      "WebFetch(domain:stackoverflow.com)",
+      "WebFetch(domain:docs.rs)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(./secrets/**)",
+      "Read(./.envrc)",
+      "Read(~/.aws/**)",
+      "Read(~/.ssh/id_*)",
+      "Read(~/.ssh/*.pem)",
+      "Read(**/*credentials*)",
+      "Read(**/*secret*)",
+      "Edit(~/.bashrc)",
+      "Edit(~/.zshrc)",
+      "Edit(~/.profile)",
+      "Edit(/bin/**)",
+      "Edit(/usr/local/bin/**)",
+      "Edit(/etc/**)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "allowUnsandboxedCommands": true,
+    "network": {
+      "allowUnixSockets": [
+        "/var/run/docker.sock"
+      ]
+    },
+    "excludedCommands": [
+      "docker",
+      "watchman"
+    ]
+  },
+  "model": "opus"
+}

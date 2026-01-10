@@ -13,3 +13,15 @@
   when: claude_installed.rc != 0
   args:
     creates: "{{ ansible_env.HOME }}/.claude/local/bin/claude"
+
+- name: Ensure Claude config directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.claude"
+    state: directory
+    mode: '0700'
+
+- name: Copy Claude settings
+  ansible.builtin.template:
+    src: settings.json.j2
+    dest: "{{ ansible_env.HOME }}/.claude/settings.json"
+    mode: '0600'
